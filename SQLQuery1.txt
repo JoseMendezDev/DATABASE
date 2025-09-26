@@ -1,0 +1,136 @@
+CREATE DATABASE UNIVERSIDAD;
+GO
+
+CREATE TABLE estudiantes (
+	id_estudiante INT PRIMARY KEY,
+	nombre VARCHAR(50) NOT NULL,
+	apellido VARCHAR(50) NOT NULL,
+	fecha_nacimiento DATE,
+	carrera VARCHAR(50)
+);
+
+ALTER TABLE estudiantes ALTER COLUMN carrera VARCHAR(100);
+
+CREATE TABLE cursos (
+	id_curso INT PRIMARY KEY,
+	nombre_curso VARCHAR(100) NOT NULL,
+	creditos INT
+);
+
+CREATE TABLE inscripciones (
+	id_inscripcion INT IDENTITY(1,1) PRIMARY KEY,
+	id_estudiante INT FOREIGN KEY REFERENCES estudiantes(id_estudiante),
+	id_curso INT FOREIGN KEY REFERENCES cursos(id_curso),
+	fecha_inscripcion DATE
+);
+
+INSERT INTO estudiantes(id_estudiante, nombre, apellido, fecha_nacimiento, carrera) VALUES
+(1, 'Ana', 'Gómez', '2000-05-15', 'Ingeniería de Sistemas'),
+(2, 'Luis', 'Pérez', '1999-11-20', 'Administración de Empresas'),
+(3, 'María', 'López', '2001-08-01', 'Ingeniería de Sistemas'),
+(4, 'Carlos', 'Rodríguez', '2000-02-10', 'Derecho'),
+(5, 'Sofía', 'Martínez', '2002-03-25', 'Arquitectura');
+GO
+
+INSERT INTO cursos (id_curso, nombre_curso, creditos) VALUES
+(101, 'Bases de Datos I', 6),
+(102, 'Programación Orientada a Objetos', 5),
+(103, 'Estructura de Datos', 4);
+GO
+
+INSERT INTO inscripciones (id_estudiante, id_curso, fecha_inscripcion) VALUES
+(1, 101, '2025-09-20'),
+(2, 102, '2025-09-21'),
+(3, 101, '2025-09-20'),
+(4, 102, '2025-09-22');
+GO
+
+--SELECT
+--a. Estudiantes de Ingenierías de Sistemas
+SELECT * FROM estudiantes WHERE carrera = 'Ingeniería de Sistemas';
+GO
+
+--b. Cursos y números de inscritos
+SELECT 
+	c.nombre_curso,
+	COUNT(i.id_inscripcion) AS numero_inscritos
+FROM
+	cursos c
+LEFT JOIN
+	inscripciones i ON c.id_curso = i.id_curso
+GROUP BY
+	c.nombre_curso
+ORDER BY
+	numero_inscritos DESC;
+GO
+
+--c. Estudiantes inscritos en el curso 101
+SELECT 
+	e.nombre,
+	e.apellido
+FROM
+	estudiantes e
+LEFT JOIN
+	inscripciones i ON e.id_estudiante = i.id_estudiante
+WHERE
+	i.id_curso = 101;
+GO
+
+-- UPDATE
+-- a. Actualizar nombre de estudiante
+UPDATE estudiantes SET nombre = 'Ana Belén' WHERE id_estudiante = 1;
+GO
+
+-- b. Modificar créditos de un curso
+UPDATE cursos SET creditos = 7 WHERE id_curso = 101;
+GO
+
+--DELETE
+-- a. Eliminar una inscripción
+DELETE FROM inscripciones WHERE id_inscripcion = 1;
+GO
+
+--COMANDOS DCL
+
+--Crear logins de SQL Server
+CREATE LOGIN analista_datos WITH PASSWORD = 'password123', CHECK_POLICY = OFF;
+CREATE LOGIN administrador_academico WITH PASSWORD = 'admin123', CHECK_POLICY = OFF;
+GO
+
+IF EXISTS (SELECT name, type_desc FROM sys.server_principals WHERE name = 'administrador_acadeico') DROP LOGIN administrador_acadeico;
+
+--Crear usuarios de base de datos a partir de los logins
+USE UNIVERSIDAD;
+CREATE USER analista_datos FOR LOGIN analista_datos;
+CREATE USER administrador_academico FOR LOGIN administrador_academico;
+GO
+
+--GRANT
+USE UNIVERSIDAD
+--a. Conceder permisos SELECT
+GRANT SELECT ON estudiantes TO analista_datos;
+GRANT SELECT ON cursos TO analista_datos;
+GO
+
+--b. Conceder todos los permisos
+GRANT SELECT, INSERT, UPDATE, DELETE ON estudiantes TO administrador_academico;
+GRANT SELECT, INSERT, UPDATE, DELETE ON cursos TO administrador_academico;
+GRANT SELECT, INSERT, UPDATE, DELETE ON inscripciones TO administrador_academico;
+GO
+
+--REVOKE
+USE UNIVERSIDAD
+--a. Revocar permiso SELECT
+REVOKE SELECT ON cursos FROM analista_datos;
+GO
+
+SELECT name, type_desc FROM sys.server_principals;
+GO
+
+--ACTIVIDAD 3:
+--
+CREATE NONCLUSTERED INDEX idx_carrera ON estudiantes(carrera);
+GO
+
+SELECT * FROM sys.indexes WHERE object_id = OBJECT_ID('estudiantes') AND type_desc = 'NONCLUSTERED';
+GO
