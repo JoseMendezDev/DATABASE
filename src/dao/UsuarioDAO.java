@@ -145,4 +145,8 @@ public class UsuarioDAO {
         
         return nuevoID;
     }
+    
+    public void eliminarUsuario(){
+        
+    }
 }
