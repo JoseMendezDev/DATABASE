@@ -70,4 +70,5 @@ public class Usuario {
                 ", fechaRegistro=" + fechaRegistro +
                 '}';
     }
+    //prueba 2
 }
