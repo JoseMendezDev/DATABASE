@@ -149,4 +149,8 @@ public class UsuarioDAO {
     public void EliminarUsuario() {
 
     }
+    
+    public void VerUsuario(){
+        
+    }
 }
