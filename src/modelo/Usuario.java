@@ -70,4 +70,6 @@ public class Usuario {
                 ", fechaRegistro=" + fechaRegistro +
                 '}';
     }
+    
+    //Se añade cambio para probar merge
 }
