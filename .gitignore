@@ -1,0 +1,18 @@
+# NetBeans specific
+nbproject/private/
+build/
+nbbuild/
+dist/
+nbdist/
+.nb-gradle/
+
+# Archivos de configuración local
+config.properties
+
+# Drivers JDBC
+*.jar
+lib/
+
+# Archivos del sistema
+.DS_Store
+Thumbs.db
