@@ -146,7 +146,7 @@ public class UsuarioDAO {
         return nuevoID;
     }
     
-    public void EliminarUsuario(){
-        
+    public void EliminarUsuario() {
+
     }
 }
