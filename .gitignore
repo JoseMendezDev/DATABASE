@@ -16,3 +16,6 @@ lib/
 # Archivos del sistema
 .DS_Store
 Thumbs.db
+
+# Base de datos
+base de datos
