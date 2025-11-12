@@ -1,0 +1,8 @@
+IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'TestDB')
+BEGIN
+    CREATE DATABASE TestDB;
+END
+GO
+
+USE TestDB;
+GO
