@@ -12,8 +12,6 @@ CREATE TABLE categorias (
 	fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
 	activo BOOLEAN DEFAULT TRUE,
 	FOREIGN KEY (categoria_padre_id) REFERENCES categorias(id) ON DELETE SET NULL,
-	INDEX idx_categoria_padre (categoria_padre_id),
-	INDEX idx_activo (activo)
 );
 GO
 
@@ -27,12 +25,7 @@ CREATE TABLE productos (
     activo BOOLEAN DEFAULT TRUE,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT,
-    INDEX idx_categoria (categoria_id),
-    INDEX idx_nombre (nombre),
-    INDEX idx_activo (activo),
-    INDEX idx_precio (precio),
-    FULLTEXT INDEX ft_nombre_descripcion (nombre, descripcion)
+    FOREIGN KEY (categoria_id) REFERENCES categorias(id) ON DELETE RESTRICT
 );
 GO
 
@@ -44,8 +37,6 @@ CREATE TABLE inventario (
     stock_maximo INT NOT NULL DEFAULT 1000,
     ultima_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    INDEX idx_producto (producto_id),
-    INDEX idx_stock_bajo (stock_actual),
     CHECK (stock_minimo < stock_maximo)
 );
 GO
@@ -59,9 +50,7 @@ CREATE TABLE clientes (
     direccion_envio TEXT,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     ultimo_acceso TIMESTAMP NULL,
-    activo BOOLEAN DEFAULT TRUE,
-    INDEX idx_email (email),
-    INDEX idx_activo (activo)
+    activo BOOLEAN DEFAULT TRUE
 );
 GO
 
@@ -73,9 +62,7 @@ CREATE TABLE administradores (
     telefono VARCHAR(20),
     nivel ENUM('SUPER', 'MODERADOR', 'BASICO') DEFAULT 'BASICO',
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    activo BOOLEAN DEFAULT TRUE,
-    INDEX idx_email (email),
-    INDEX idx_nivel (nivel)
+    activo BOOLEAN DEFAULT TRUE
 );
 GO
 
@@ -87,16 +74,14 @@ CREATE TABLE transportes (
     capacidad_kg INT NOT NULL,
     disponible BOOLEAN DEFAULT TRUE,
     
-    -- Campos específicos por tipo
+    -- Campos especÃ­ficos por tipo
     cilindrada INT NULL, -- Para motocicletas
-    numero_puertas INT NULL, -- Para automóviles
-    tiene_maletero BOOLEAN NULL, -- Para automóviles
+    numero_puertas INT NULL, -- Para automÃ³viles
+    tiene_maletero BOOLEAN NULL, -- Para automÃ³viles
     capacidad_carga DECIMAL(10, 2) NULL, -- Para camionetas
     tiene_refrigeracion BOOLEAN NULL, -- Para camionetas
     
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_tipo (tipo),
-    INDEX idx_disponible (disponible)
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 GO
 
@@ -111,10 +96,7 @@ CREATE TABLE repartidores (
     en_servicio BOOLEAN DEFAULT FALSE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (vehiculo_id) REFERENCES transportes(id) ON DELETE SET NULL,
-    INDEX idx_email (email),
-    INDEX idx_en_servicio (en_servicio),
-    INDEX idx_vehiculo (vehiculo_id)
+    FOREIGN KEY (vehiculo_id) REFERENCES transportes(id) ON DELETE SET NULL
 );
 GO
 
@@ -126,10 +108,7 @@ CREATE TABLE pedidos (
     direccion_envio TEXT NOT NULL,
     fecha_pedido TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT,
-    INDEX idx_cliente (cliente_id),
-    INDEX idx_estado (estado),
-    INDEX idx_fecha (fecha_pedido)
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE RESTRICT
 );
 GO
 
@@ -141,9 +120,7 @@ CREATE TABLE detalle_pedidos (
     precio_unitario DECIMAL(10, 2) NOT NULL CHECK (precio_unitario >= 0),
     subtotal DECIMAL(10, 2) NOT NULL CHECK (subtotal >= 0),
     FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT,
-    INDEX idx_pedido (pedido_id),
-    INDEX idx_producto (producto_id)
+    FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE RESTRICT
 );
 GO
 
@@ -152,7 +129,7 @@ CREATE TABLE metodos_pago (
     tipo ENUM('TARJETA_CREDITO', 'PAYPAL', 'TRANSFERENCIA_BANCARIA') NOT NULL,
     activo BOOLEAN DEFAULT TRUE,
     
-    -- Campos para Tarjeta de Crédito
+    -- Campos para Tarjeta de CrÃ©dito
     numero_tarjeta VARCHAR(16) NULL,
     titular VARCHAR(150) NULL,
     fecha_expiracion DATE NULL,
@@ -164,8 +141,7 @@ CREATE TABLE metodos_pago (
     numero_cuenta VARCHAR(50) NULL,
     banco VARCHAR(100) NULL,
     
-    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-    INDEX idx_tipo (tipo)
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 GO
 
@@ -178,10 +154,7 @@ CREATE TABLE pagos (
     numero_transaccion VARCHAR(100) UNIQUE,
     fecha_pago TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (metodo_pago_id) REFERENCES metodos_pago(id) ON DELETE RESTRICT,
-    INDEX idx_pedido (pedido_id),
-    INDEX idx_estado (estado),
-    INDEX idx_fecha (fecha_pago)
+    FOREIGN KEY (metodo_pago_id) REFERENCES metodos_pago(id) ON DELETE RESTRICT
 );
 GO
 
@@ -196,11 +169,7 @@ CREATE TABLE envios (
     fecha_entrega TIMESTAMP NULL,
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON DELETE CASCADE,
-    FOREIGN KEY (repartidor_id) REFERENCES repartidores(id) ON DELETE SET NULL,
-    INDEX idx_pedido (pedido_id),
-    INDEX idx_repartidor (repartidor_id),
-    INDEX idx_estado (estado),
-    INDEX idx_codigo (codigo_seguimiento)
+    FOREIGN KEY (repartidor_id) REFERENCES repartidores(id) ON DELETE SET NULL
 );
 GO
 
@@ -210,9 +179,7 @@ CREATE TABLE carritos (
     fecha_creacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     fecha_actualizacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     activo BOOLEAN DEFAULT TRUE,
-    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE,
-    INDEX idx_cliente (cliente_id),
-    INDEX idx_activo (activo)
+    FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON DELETE CASCADE
 );
 GO
 
@@ -225,8 +192,6 @@ CREATE TABLE items_carrito (
     fecha_agregado TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (carrito_id) REFERENCES carritos(id) ON DELETE CASCADE,
     FOREIGN KEY (producto_id) REFERENCES productos(id) ON DELETE CASCADE,
-    INDEX idx_carrito (carrito_id),
-    INDEX idx_producto (producto_id),
     UNIQUE KEY uk_carrito_producto (carrito_id, producto_id)
 );
 GO
@@ -237,7 +202,6 @@ CREATE TABLE permisos (
     permiso VARCHAR(50) NOT NULL,
     fecha_asignacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (administrador_id) REFERENCES administradores(id) ON DELETE CASCADE,
-    INDEX idx_admin (administrador_id),
     UNIQUE KEY uk_admin_permiso (administrador_id, permiso)
 );
 GO
